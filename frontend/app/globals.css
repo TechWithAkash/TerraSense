@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
-/* one deliberate theme, always on — no prefers-color-scheme switch, so nothing ever goes
-   invisible depending on the visitor's OS setting. every color below is used explicitly. */
+/* one flat, deliberate light theme — no dark mode switch, so nothing ever goes
+   invisible depending on the visitor's OS setting. */
 :root {
-  --background: #05080a;
-  --foreground: #e6ebe9;
+  --background: #ffffff;
+  --foreground: #0d0d0d;
 }
 
 @theme inline {
@@ -15,44 +15,14 @@
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(16, 185, 129, 0.12), transparent),
-    var(--background);
+  background: var(--background);
   color: var(--foreground);
-  min-height: 100vh;
 }
 
-/* thin, unobtrusive scrollbar that matches the theme instead of the browser default */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(16, 185, 129, 0.25) transparent;
-}
-*::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-*::-webkit-scrollbar-thumb {
-  background: rgba(16, 185, 129, 0.25);
-  border-radius: 999px;
-}
-*::-webkit-scrollbar-thumb:hover {
-  background: rgba(16, 185, 129, 0.45);
-}
-
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.animate-fade-in-up {
-  animation: fade-in-up 0.25s ease-out both;
+textarea {
+  field-sizing: content;
 }
