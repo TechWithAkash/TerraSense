@@ -22,3 +22,7 @@ frontend/next-env.d.ts
 .DS_Store
 .vscode/
 .idea/
+CLAUDE.md
+AGENTS.md
+**/CLAUDE.md
+**/AGENTS.md

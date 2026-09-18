@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { sendChatMessage } from "@/lib/api";
+import { sendChatMessage, warmUpBackend } from "@/lib/api";
 import RecommendationCard from "@/app/components/RecommendationCard";
 import SitePanel from "@/app/components/SitePanel";
 
@@ -56,6 +56,7 @@ export default function Home() {
   const [sessionId, setSessionId] = useState(null);
   const [siteState, setSiteState] = useState({});
   const [loading, setLoading] = useState(false);
+  const [slowLoading, setSlowLoading] = useState(false);
   const [error, setError] = useState(null);
   const [jsonMode, setJsonMode] = useState(false);
   const scrollAnchorRef = useRef(null);
@@ -64,6 +65,12 @@ export default function Home() {
   useEffect(() => {
     scrollAnchorRef.current?.scrollIntoView({ block: "end", behavior: "smooth" });
   }, [messages, loading]);
+
+  // wake a sleeping backend as soon as the page loads, so it's hopefully already warm by the
+  // time the user finishes reading the page and sends their first message
+  useEffect(() => {
+    warmUpBackend();
+  }, []);
 
   function resetConversation() {
     setMessages([]);
@@ -79,9 +86,15 @@ export default function Home() {
 
     setError(null);
     setLoading(true);
+    setSlowLoading(false);
     setMessages((prev) => [...prev, { role: "user", content: text }]);
     setInput("");
     if (textareaRef.current) textareaRef.current.style.height = "auto";
+
+    // if a reply is taking a while, it's almost always the backend waking up from sleep on free
+    // hosting, not the reasoning itself - say so after a few seconds instead of leaving the user
+    // guessing what a generic spinner means
+    const slowTimer = setTimeout(() => setSlowLoading(true), 6000);
 
     try {
       const payload = jsonMode
@@ -98,7 +111,9 @@ export default function Home() {
     } catch (err) {
       setError(jsonMode && err instanceof SyntaxError ? "That's not valid JSON." : err.message);
     } finally {
+      clearTimeout(slowTimer);
       setLoading(false);
+      setSlowLoading(false);
     }
   }
 
@@ -230,7 +245,11 @@ export default function Home() {
                 {loading && (
                   <div className="flex items-center gap-2 rounded-xl bg-white border border-gray-200 px-4 py-3 shadow-sm text-xs text-gray-600">
                     <span className="h-2 w-2 rounded-full bg-[rgb(0,146,69)] animate-pulse" />
-                    <span>Propagating causal graph & retrieving peer-reviewed evidence…</span>
+                    <span>
+                      {slowLoading
+                        ? "Still working — the server may be waking up from sleep on free hosting, this can take up to a minute…"
+                        : "Propagating causal graph & retrieving peer-reviewed evidence…"}
+                    </span>
                   </div>
                 )}
 
