@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "TerraSense",
+  title: "TerraSense — AI Biodiversity Intelligence",
   description: "AI biodiversity intelligence chatbot for the Darukaa.Earth challenge",
 };
 
@@ -22,7 +22,9 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col bg-transparent text-[color:var(--foreground)]">
+        {children}
+      </body>
     </html>
   );
 }

@@ -17,8 +17,10 @@ class Settings(BaseSettings):
 
     # LLM provider, used for intake parsing, clarifying questions, and narration
     # if no key is set, the system falls back to rule-based logic so it still runs and demos cleanly
-    openai_api_key: str | None = None
-    openai_model: str = "gpt-4o-mini"
+    # Groq speaks the OpenAI Chat Completions API, so we reuse the openai SDK pointed at Groq's base_url
+    groq_api_key: str | None = None
+    groq_model: str = "llama-3.3-70b-versatile"
+    groq_base_url: str = "https://api.groq.com/openai/v1"
 
     # reasoning engine tuning
     max_propagation_depth: int = 3

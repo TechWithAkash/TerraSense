@@ -99,7 +99,7 @@ def _rule_based_extract(text: str) -> dict:
 
 
 def extract_from_text(text: str) -> ExtractedSiteInput:
-    llm_response = complete(_SYSTEM_PROMPT, text)
+    llm_response = complete(_SYSTEM_PROMPT, text, json_mode=True)
     if llm_response:
         try:
             parsed = json.loads(llm_response)

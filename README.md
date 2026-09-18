@@ -75,8 +75,9 @@ system always knows, and can always say, which numbers came from the user and wh
 
 ## 3. Local setup
 
-Requires Python 3.12+, `uv`, and Node 20+. No API keys required to run the full pipeline — an OpenAI key
-is optional and only improves free-text parsing and prose quality (see §5).
+Requires Python 3.12+, `uv`, and Node 20+. No API keys required to run the full pipeline — a free
+[Groq](https://console.groq.com/keys) key is optional and only improves free-text parsing and prose
+quality (see §5).
 
 ```bash
 # backend
