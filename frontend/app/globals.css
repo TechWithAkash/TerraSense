@@ -1,17 +1,21 @@
 @import "tailwindcss";
 
-/* one flat, deliberate light theme — no dark mode switch, so nothing ever goes
-   invisible depending on the visitor's OS setting. */
 :root {
-  --background: #ffffff;
-  --foreground: #0d0d0d;
+  --background: #f9fafb;
+  --foreground: #000000;
+  --darukaa-green: rgb(0, 146, 69);
+  --darukaa-green-light: #e8f7ed;
+  --darukaa-dark: #0b1f16;
+  --darukaa-dark-surface: #0e2a1d;
+  --darukaa-surface: #f3f4f6;
+  --darukaa-border: rgba(0, 146, 69, 0.25);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
 }
 
 html {
@@ -19,10 +23,37 @@ html {
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-manrope), sans-serif;
+  letter-spacing: -0.02em;
+}
+
+code, pre, .font-mono {
+  font-family: var(--font-jetbrains-mono), monospace;
 }
 
 textarea {
   field-sizing: content;
 }
+
+/* Custom smooth scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+

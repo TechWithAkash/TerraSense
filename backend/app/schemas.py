@@ -28,6 +28,7 @@ class ExtractedSiteInput(BaseModel):
     rainfall_regime: str | None = None  # low | moderate | high
     annual_rainfall_mm: float | None = None
     aridity: str | None = None  # arid | semi_arid | sub_humid | humid
+    mean_temperature_c: float | None = None
     soil_texture: str | None = None  # sandy | sandy_loam | loam | clay
     slope_percent: float | None = None
     groundwater_depth_m: float | None = None

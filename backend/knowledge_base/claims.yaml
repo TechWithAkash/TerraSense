@@ -214,3 +214,11 @@ claims:
     target_variable: nutrient_runoff
     intervention_id: native_grass_buffer_strips
     summary: "Vegetated buffer strips along field edges and waterways intercept nutrient and sediment runoff while providing pollinator forage and reducing fragmentation."
+
+  - id: clm_024
+    document: "IPCC AR6 WG2, Chapter 5, Food, Fibre and Other Ecosystem Products"
+    publisher: "Intergovernmental Panel on Climate Change"
+    year: 2022
+    study_design: assessment
+    target_variable: aridity_classification
+    summary: "Rising mean temperatures raise potential evapotranspiration and compound rainfall deficits, pushing the effective aridity of a given rainfall regime toward a more severe classification. This substantiates the temperature-adjusted aridity step in app/services/recommend.py rather than a single causal edge, since aridity is a site classification, not a propagated graph variable."

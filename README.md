@@ -111,12 +111,16 @@ curl -s -X POST http://localhost:8000/api/v1/chat \
   -d '{"message": "Biodiversity is declining on my land"}'
 ```
 
-This reproduces the assignment brief's own example exactly: TerraSense asks for land use, then
-(if tree-based interventions are plausible) groundwater depth, then rainfall, before returning ranked,
-cited recommendations. See [`backend/knowledge_base/SOURCES.md`](backend/knowledge_base/SOURCES.md) and
-run `uv run pytest -v` in `backend/` for the full test suite (47 tests: the reasoning core in isolation,
-plus end-to-end golden scenarios in `tests/test_golden_scenarios.py` mapped directly to the
-assignment's evaluation rubric — see [EVALUATION.md](EVALUATION.md)).
+This reproduces the assignment brief's own "Example Use Case" exactly: given that much detail up
+front, TerraSense answers immediately (land use, rainfall, and soil organic carbon are the only
+fields that ever block a first answer — matching the brief's own clarifying-question example),
+with agroforestry among the ranked, FAO/IPCC-cited recommendations, and a non-blocking suggestion
+to sharpen the groundwater estimate alongside the answer rather than gating it. See
+[`backend/knowledge_base/SOURCES.md`](backend/knowledge_base/SOURCES.md) and run `uv run pytest -v`
+in `backend/` for the full test suite (55 tests: the reasoning core in isolation, plus end-to-end
+golden scenarios in `tests/test_golden_scenarios.py` mapped directly to the assignment's evaluation
+rubric — see [EVALUATION.md](EVALUATION.md), including an audit log of bugs a critical review of
+the brief's own example surfaced and fixed).
 
 ## 4. CI/CD
 

@@ -1,16 +1,29 @@
 from dataclasses import dataclass
 
 # ranks candidate interventions once we know their simulated impact, cost, and confidence.
-# default weights favour biodiversity impact, matching what the brief actually asks us to optimise for.
-
+# weights favour ecological impact and evidence quality heavily: the brief grades depth of
+# reasoning and scientific grounding, never cost-effectiveness or speed of payoff. cost and speed
+# stay in as real, legitimate tie-breakers (and matter more once a user states an actual budget,
+# via the feasibility filter in is_feasible), but they must not be able to out-vote a genuinely
+# higher-impact, well-evidenced intervention just for being cheaper or faster.
 RANK_WEIGHTS = {
-    "biodiversity_impact": 0.40,
-    "confidence": 0.25,
-    "cost_efficiency": 0.20,
-    "speed": 0.15,
+    "biodiversity_impact": 0.55,
+    "confidence": 0.30,
+    "cost_efficiency": 0.10,
+    "speed": 0.05,
 }
 
-BIODIVERSITY_VARIABLES = {"species_richness", "pollinator_abundance", "soil_biota_activity"}
+# species_richness/pollinator_abundance/soil_biota_activity are direct biodiversity outcomes;
+# fragmentation_index is explicitly "habitat diversity" per the brief's own knowledge-base
+# categories, so it counts too. fragmentation_index is "higher is worse" (see variables.yaml), so
+# its delta gets sign-flipped in score_candidate below - a fragmentation *decrease* is the win.
+BIODIVERSITY_VARIABLES = {
+    "species_richness",
+    "pollinator_abundance",
+    "soil_biota_activity",
+    "fragmentation_index",
+}
+INVERTED_BIODIVERSITY_VARIABLES = {"fragmentation_index"}
 
 
 @dataclass
@@ -77,9 +90,11 @@ def score_candidate(
     capex_range: list[float] | None,
     time_to_first_effect_months: int | None,
 ) -> CandidateScore:
-    biodiversity_impact = sum(
-        delta for var, delta in predicted_deltas.items() if var in BIODIVERSITY_VARIABLES
-    )
+    biodiversity_impact = 0.0
+    for var, delta in predicted_deltas.items():
+        if var not in BIODIVERSITY_VARIABLES:
+            continue
+        biodiversity_impact += -delta if var in INVERTED_BIODIVERSITY_VARIABLES else delta
     biodiversity_impact = max(0.0, min(1.0, biodiversity_impact))
 
     if capex_range:

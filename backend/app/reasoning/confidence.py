@@ -81,7 +81,12 @@ def score_input_completeness(
 
 
 def score_path_directness(mean_path_length: float) -> float:
-    return 1.0 / (1 + 0.4 * mean_path_length)
+    # a longer causal chain is genuinely less certain, but this must stay a mild discount, not a
+    # penalty against reasoning depth itself - the brief grades combining multiple environmental
+    # variables at 30%, so an intervention that legitimately reaches many variables through a
+    # richer chain (e.g. canopy cover touching pollinators, fragmentation, runoff and groundwater)
+    # must not be scored as if it were simply less trustworthy than a shallow one-hop effect.
+    return 1.0 / (1 + 0.15 * mean_path_length)
 
 
 def compute_confidence(

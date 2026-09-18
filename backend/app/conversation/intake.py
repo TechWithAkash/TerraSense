@@ -14,8 +14,9 @@ soil_organic_carbon (percent, e.g. 0.3), soil_ph, canopy_cover (percent), fragme
 species_richness (0-1), pollinator_abundance (0-1), soil_biota_activity (0-1), soil_moisture (0-1),
 nutrient_runoff (0-1),
 land_cover (cropland|grassland|forest), crop (free text), rainfall_regime (low|moderate|high),
-annual_rainfall_mm, aridity (arid|semi_arid|sub_humid|humid), soil_texture (sandy|sandy_loam|loam|clay),
-slope_percent, groundwater_depth_m, budget_inr_per_ha, area_hectares.
+annual_rainfall_mm, aridity (arid|semi_arid|sub_humid|humid), mean_temperature_c,
+soil_texture (sandy|sandy_loam|loam|clay), slope_percent, groundwater_depth_m, budget_inr_per_ha,
+area_hectares.
 Do not guess values that were not stated or clearly implied. Return {} if nothing is extractable."""
 
 _RAINFALL_KEYWORDS = {"low": "low", "moderate": "moderate", "medium": "moderate", "high": "high"}
@@ -62,6 +63,19 @@ def _rule_based_extract(text: str) -> dict:
             found["aridity"] = keyword.replace(" ", "_").replace("-", "_")
             break
 
+    # non-greedy ".{0,N}?" between keyword and number: a greedy version happily eats into the
+    # digits themselves before backtracking (e.g. capturing "8" out of "38"), since matching more
+    # of the bridge and less of the number is still a valid match it will find first.
+    temperature_match = re.search(
+        r"(\d+\.?\d*)\s*(?:°c|deg(?:rees)?\.?\s*c(?:elsius)?|c\b)"
+        r".{0,20}?(?:temperature|temp\b)"
+        r"|(?:temperature|temp\b).{0,20}?(\d+\.?\d*)\s*(?:°c|deg(?:rees)?\.?\s*c(?:elsius)?|c\b)",
+        lowered,
+    )
+    if temperature_match:
+        value = temperature_match.group(1) or temperature_match.group(2)
+        found["mean_temperature_c"] = float(value)
+
     for keyword in _TEXTURE_KEYWORDS:
         if keyword in lowered:
             found["soil_texture"] = keyword.replace(" ", "_")
@@ -87,8 +101,8 @@ def _rule_based_extract(text: str) -> dict:
         found["slope_percent"] = float(slope_match.group(1))
 
     groundwater_match = re.search(
-        r"(\d+\.?\d*)\s*(?:m|metres|meters)\b.{0,25}(?:deep|below|borewell|water\s*level|groundwater)"
-        r"|(?:borewell|water\s*level|groundwater).{0,25}(\d+\.?\d*)\s*(?:m|metres|meters)\b",
+        r"(\d+\.?\d*)\s*(?:m|metres|meters)\b.{0,25}?(?:deep|below|borewell|water\s*level|groundwater)"
+        r"|(?:borewell|water\s*level|groundwater).{0,25}?(\d+\.?\d*)\s*(?:m|metres|meters)\b",
         lowered,
     )
     if groundwater_match:
@@ -104,6 +118,35 @@ def _rule_based_extract(text: str) -> dict:
         found["area_hectares"] = float(area_match.group(1))
 
     return found
+
+
+def extract_pending_field(text: str, pending_field: str) -> dict:
+    # when we know exactly which question was just asked, a reply doesn't need to repeat the
+    # keyword to be understood ("About 12 metres, dropping slowly" answers "how deep is your
+    # water level" perfectly well without the word "groundwater" anywhere in it). this runs only
+    # as a fallback for the one field we're actively waiting on, so it can be looser than the
+    # general-purpose scan above without risking misreading an unrelated number elsewhere.
+    lowered = text.lower()
+
+    if pending_field == "groundwater_depth_m":
+        match = re.search(r"(\d+\.?\d*)\s*(?:m\b|metres?|meters?)", lowered)
+        return {"groundwater_depth_m": float(match.group(1))} if match else {}
+
+    if pending_field == "rainfall":
+        match = re.search(r"\b(low|moderate|medium|high)\b", lowered)
+        return {"rainfall_regime": _RAINFALL_KEYWORDS[match.group(1)]} if match else {}
+
+    if pending_field == "soil_organic_carbon":
+        match = re.search(r"(\d+\.?\d*)\s*%", lowered)
+        return {"soil_organic_carbon": float(match.group(1))} if match else {}
+
+    if pending_field == "soil_texture":
+        for keyword in _TEXTURE_KEYWORDS:
+            if keyword in lowered:
+                return {"soil_texture": keyword.replace(" ", "_")}
+        return {}
+
+    return {}
 
 
 def extract_from_text(text: str) -> ExtractedSiteInput:

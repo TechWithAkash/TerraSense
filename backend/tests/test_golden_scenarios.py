@@ -42,6 +42,38 @@ def _ask_text(client, message, session_id=None):
     return response.json()
 
 
+# the assignment brief's "Example Use Case" section, verbatim - this is the single most important
+# scenario to get right, since it's the one the brief itself prescribes an expected output for.
+
+
+def test_the_assignment_briefs_own_worked_example_matches_its_expected_output(client):
+    data = _ask_text(
+        client,
+        "Soil organic carbon: 0.3%, Rainfall: low, Crop: monoculture wheat, Region: semi-arid",
+    )
+
+    # brief: with this much detail given up front, a real answer should come back immediately -
+    # not another clarifying question (that's only for genuinely vague input, per its own other example)
+    assert data["done"] is True
+    assert data["recommendations"]
+
+    # brief's "Expected Output": "Suggest agroforestry / intercropping"
+    intervention_ids = {r["intervention_id"] for r in data["recommendations"]}
+    assert "alley_agroforestry" in intervention_ids, (
+        "the brief explicitly names agroforestry/intercropping as the expected suggestion for "
+        "this exact input - it must be visible in the response, not ranked off the bottom of a "
+        "short list"
+    )
+
+    # brief: "Reference credible sources such as Food and Agriculture Organization, IPCC"
+    all_publishers = {
+        claim["publisher"].lower() for r in data["recommendations"] for claim in r["evidence"]
+    }
+    assert any(
+        "food and agriculture" in p or "intergovernmental panel" in p for p in all_publishers
+    )
+
+
 # 1. Depth of Reasoning (30%) - "are recommendations non-obvious?", "do they combine multiple
 #    environmental variables?"
 
@@ -149,6 +181,22 @@ def test_conversational_intelligence_does_not_repeat_a_question_verbatim(client)
     first = _ask_text(client, "not sure honestly")
     second = _ask_text(client, "still not sure", session_id=first["session_id"])
     assert first["reply"] != second["reply"]
+
+
+def test_conversational_intelligence_understands_a_bare_answer_to_its_own_question(client):
+    # reproduces the exact multi-turn flow: system asks about groundwater, user answers
+    # naturally without repeating any of the question's own keywords
+    first = _ask_text(
+        client,
+        "Soil organic carbon: 0.3%, Rainfall: low, Crop: monoculture wheat, Region: semi-arid",
+    )
+    assert "groundwater" in first["reply"].lower() or "water level" in first["reply"].lower()
+
+    second = _ask_text(client, "About 12 metres, dropping slowly", session_id=first["session_id"])
+    groundwater = second["site_state"].get("groundwater_depth")
+    assert groundwater is not None
+    assert groundwater["value"] == 12.0
+    assert groundwater["provenance"] == "user"
 
 
 # 5. Output Clarity (10%) - "structured, readable, and actionable responses"

@@ -13,12 +13,22 @@ automated test proves it — so this is checkable, not just asserted. Every test
   (`backend/knowledge_base/edges.yaml`, 14 edges over 11 variables) up to 3 hops from the
   intervention's direct effects, not by asking an LLM to free-associate. See
   `backend/app/reasoning/graph_engine.py`.
+- **The assignment's own worked example, verbatim**: given exactly the brief's "Example Use Case"
+  input (SOC 0.3%, low rainfall, monoculture wheat, semi-arid), the system's response includes
+  agroforestry/intercropping among its ranked recommendations, with evidence citing FAO/IPCC, and
+  answers directly instead of asking a follow-up question — matching the brief's stated "Expected
+  Output" exactly. Locked in by
+  `test_golden_scenarios.py::test_the_assignment_briefs_own_worked_example_matches_its_expected_output`.
+  This did *not* work on first build (see Audit Log below) — the ranking weights favoured cheap,
+  fast interventions strongly enough to bury agroforestry at 9th of 9 candidates.
 - **The non-obvious case**: adding tree canopy in a semi-arid, low-rainfall site with a shallow
   water table triggers a specific, context-gated trade-off (deepening groundwater), not a blanket
   "trees are risky" rule — it only fires for high-transpiration species in water-limited zones.
   Proven in `test_recommend_service.py::test_trade_off_surfaces_for_agroforestry_in_a_water_limited_zone`,
   and at 15m+ groundwater depth the same intervention is excluded outright
-  (`test_deep_groundwater_excludes_agroforestry_entirely`).
+  (`test_deep_groundwater_excludes_agroforestry_entirely`). Trade-offs below a materiality
+  threshold (would round to 0.00 in the displayed output) are filtered out rather than shown as
+  noise — `MATERIALITY_THRESHOLD` in `graph_engine.py`.
 - **Diminishing returns**: an already carbon-rich site (2.9% SOC) gets a measurably smaller
   headline gain from the same intervention than a degraded one (0.3% SOC) — a saturating transform
   applied to both the causal edges and the intervention's own direct effects, not a flat number
@@ -73,6 +83,11 @@ automated pipeline from the full paper text. This is stated explicitly in `SOURC
 model — it matches on term overlap, not meaning. Swapping in a hosted embedding model is a
 one-file change (`app/knowledge/search.py`) since nothing else depends on the implementation.
 
+**Category coverage**: the brief lists soil health, land use, biodiversity, climate factors
+(temperature, rainfall), and human impact as the categories the knowledge base should cover.
+Rainfall, land use, soil, and biodiversity were covered from the start; temperature was not — see
+Audit Log below for how that gap was found and closed.
+
 ## 4. Conversational Intelligence — 15%
 
 *"Context awareness. Follow-up questioning. Memory handling."*
@@ -90,6 +105,11 @@ one-file change (`app/knowledge/search.py`) since nothing else depends on the im
   during manual testing (the system had no path for this and just repeated the same clarifying
   question verbatim); fixed and now regression-tested, including
   `test_conversational_intelligence_does_not_repeat_a_question_verbatim`.
+- A reply to the system's own just-asked question is understood even when it doesn't repeat the
+  question's own keywords ("About 12 metres, dropping slowly" answers "how deep is your water
+  level" without the words "groundwater" or "borewell" anywhere in it) — proven in
+  `test_conversational_intelligence_understands_a_bare_answer_to_its_own_question`. Also a real bug
+  found during this audit, see Audit Log.
 
 **Honest limitation**: without a Groq key configured, intake falls back to regex extraction, which
 handles a wide but finite set of phrasings — it will miss more creative or indirect phrasing than
@@ -123,4 +143,58 @@ cd backend
 uv run pytest -v tests/test_golden_scenarios.py tests/test_recommend_service.py
 ```
 
-47 tests total across the full suite (`uv run pytest`), all gated in CI on every push.
+55 tests total across the full suite (`uv run pytest`), all gated in CI on every push.
+
+## Audit log
+
+This section exists because "I tested it" is a weaker claim than "here is exactly what I tested
+and what I found." The first pass at this rubric mapping (an earlier version of this document)
+asserted things that hadn't actually been checked against the live system — running the
+assignment's own worked example through it, specifically. Once actually done, that check failed,
+and continuing to pull on it surfaced six real bugs. All are fixed and regression-tested; listed
+here in the order they were found, most consequential first.
+
+1. **The brief's own reference scenario didn't produce its expected output.** Given exactly the
+   4-field example from `ASSIGNMENT.md`, the system asked a clarifying question about groundwater
+   depth instead of answering — and once that gate was relaxed, its top recommendation was cover
+   cropping, not agroforestry, because ranking weighted cost and speed heavily enough that a
+   9x-more-expensive, 2x-slower intervention couldn't compete regardless of ecological impact. Cost
+   and speed are real considerations but are not anything the brief's rubric grades. Fixed across
+   three changes: split clarifying questions into a blocking tier (the brief's own 3 fields:
+   land use, rainfall, soil organic carbon) and a non-blocking refinement tier (asked alongside a
+   real answer, never instead of one); rebalanced ranking weights toward ecological impact and
+   evidence quality; corrected `confidence.py`'s path-length penalty, which was scoring a richer,
+   more multi-variable causal chain as *less* trustworthy than a shallow one, directly working
+   against the 30%-weighted "combines multiple variables" criterion.
+2. **A reply to the system's own question was silently ignored.** The non-blocking refinement
+   question ("how deep is your water level?") never recorded what field it was waiting on, so a
+   natural follow-up reply ("About 12 metres, dropping slowly") matched nothing and the system
+   quietly kept using its generic default instead of the number the user had just given it. Fixed
+   by tracking the pending field on the refinement path the same way it already was on the
+   blocking path, plus a new lenient, field-scoped extraction pass for replies that don't repeat
+   the original question's keywords.
+3. **Two regex extraction bugs, both silent.** A greedy `.{0,N}` bridge between a keyword and a
+   number matched past the keyword *into* the digits before backtracking (e.g. capturing `8` out
+   of `18`), for both groundwater depth and the newly-added temperature field, whenever the number
+   came before the keyword. Existing tests never exercised that phrasing direction, so it shipped
+   unnoticed. Fixed with non-greedy quantifiers and regression-tested for both orderings.
+4. **`groundwater_depth_m` (feasibility filter) and `groundwater_depth` (the causal graph's own
+   baseline) were disconnected fields representing the same real quantity.** The extractor only
+   ever populated the first, so the graph's reasoning silently used a generic default even after a
+   user stated their actual number. Unified into one field that updates both subsystems.
+5. **Saturation only applied to propagated edge effects, not to an intervention's own direct
+   effect.** A site at 2.9% soil organic carbon was credited the identical carbon gain from cover
+   cropping as a degraded 0.3% site. Added `transform`/`saturation_point` to `DirectEffect` itself.
+6. **No temperature coverage anywhere.** The brief explicitly lists "climate factors (temperature,
+   rainfall)" as a knowledge-base category; rainfall was covered extensively, temperature not at
+   all. Added as a context field (extracted from text or JSON, shown in site state) that refines
+   the rainfall-derived aridity classification the same way real aridity indices combine
+   temperature and precipitation — consistent with how rainfall itself was already treated as
+   context rather than a graph node, and backed by a new claim citing IPCC AR6 (already in the
+   corpus) rather than a bare heuristic.
+
+None of these were visible from reading the code or the passing test suite alone — they only
+surfaced by actually running the assignment's own example end to end and pulling on what didn't
+look right. That is the check worth re-running if anything in this repository changes: not
+"do the tests pass," but "does the brief's own worked example still produce its own expected
+output."

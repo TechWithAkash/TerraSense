@@ -24,6 +24,7 @@ CONTEXT_FIELDS = {
     "rainfall_regime",
     "annual_rainfall_mm",
     "aridity",
+    "mean_temperature_c",
     "soil_texture",
     "slope_percent",
     "groundwater_depth_m",

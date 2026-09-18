@@ -161,6 +161,11 @@ def propagate(
     return PropagationResult(deltas=deltas, paths=paths, edges_traversed=edges_traversed)
 
 
+# below this, a delta rounds to 0.00 at the precision the output actually displays - showing it
+# as a "trade-off" reads as noise, not a real finding, and undermines trust in the real ones.
+MATERIALITY_THRESHOLD = 0.01
+
+
 def detect_trade_offs(
     deltas: dict[str, VariableDelta],
     variables_by_id: dict[str, dict],
@@ -170,6 +175,8 @@ def detect_trade_offs(
     for variable_id, delta in deltas.items():
         variable = variables_by_id.get(variable_id)
         if variable is None:
+            continue
+        if abs(delta.mid) < MATERIALITY_THRESHOLD:
             continue
         higher_is_worse = variable.get("higher_is_worse", False)
         moves_badly = (delta.mid > 0) if higher_is_worse else (delta.mid < 0)

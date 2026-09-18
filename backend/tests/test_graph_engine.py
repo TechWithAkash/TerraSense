@@ -116,3 +116,14 @@ def test_detect_trade_offs_flags_worsening_higher_is_worse_variable():
     trade_offs = detect_trade_offs(deltas, variables, paths)
     assert len(trade_offs) == 1
     assert trade_offs[0]["variable"] == "groundwater_depth"
+
+
+def test_detect_trade_offs_ignores_negligible_deltas():
+    from app.reasoning.graph_engine import PathStep, VariableDelta
+
+    # rounds to 0.00 at the precision the API actually displays - not a real finding
+    deltas = {"soil_moisture": VariableDelta(-0.004, -0.002, -0.001)}
+    variables = {"soil_moisture": {"label": "Soil Moisture", "unit": "index_0_1"}}
+    paths = [PathStep("groundwater_depth", "soil_moisture", "e", -0.002, [])]
+
+    assert detect_trade_offs(deltas, variables, paths) == []

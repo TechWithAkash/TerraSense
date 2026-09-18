@@ -10,6 +10,11 @@ from app.schemas import ConfidenceOut, EvidenceOut, ImpactedMetric, Recommendati
 
 RAINFALL_TO_ARIDITY = {"low": "semi_arid", "moderate": "sub_humid", "high": "humid"}
 
+# real aridity indices (e.g. De Martonne) combine temperature and rainfall, not rainfall alone -
+# higher temperature raises potential evapotranspiration, pushing the same rainfall level toward
+# a more severe classification. this is a coarse but defensible step, not a full index.
+ARIDITY_SEVERITY_LADDER = ["humid", "sub_humid", "semi_arid", "arid"]
+
 TRADE_OFF_MITIGATIONS = {
     "groundwater_depth": "Pair with contour bunding or drip irrigation, or choose a lower-transpiration native species instead.",
     "fragmentation_index": "Combine with a field-margin hedgerow so the added structure connects rather than isolates habitat patches.",
@@ -17,9 +22,20 @@ TRADE_OFF_MITIGATIONS = {
 }
 
 
+def _apply_temperature_to_aridity(
+    aridity: str | None, mean_temperature_c: float | None
+) -> str | None:
+    if aridity not in ARIDITY_SEVERITY_LADDER or mean_temperature_c is None:
+        return aridity
+    steps = 1 if mean_temperature_c >= 35 else (1 if mean_temperature_c >= 30 else 0)
+    index = min(len(ARIDITY_SEVERITY_LADDER) - 1, ARIDITY_SEVERITY_LADDER.index(aridity) + steps)
+    return ARIDITY_SEVERITY_LADDER[index]
+
+
 def build_situation(context: dict) -> dict:
     rainfall_regime = context.get("rainfall_regime")
     aridity = context.get("aridity") or RAINFALL_TO_ARIDITY.get(rainfall_regime)
+    aridity = _apply_temperature_to_aridity(aridity, context.get("mean_temperature_c"))
     return {
         "soil_texture": context.get("soil_texture"),
         "rainfall_regime": rainfall_regime,
@@ -72,7 +88,7 @@ def _load_variables(db: DbSession) -> dict[str, dict]:
 
 
 def generate_recommendations(
-    db: DbSession, session: ConversationSession, top_n: int = 3
+    db: DbSession, session: ConversationSession, top_n: int = 5
 ) -> list[RecommendationOut]:
     context = session.context or {}
     situation = build_situation(context)
