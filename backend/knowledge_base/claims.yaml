@@ -1,0 +1,216 @@
+# Structured evidence claims. Every edge and intervention above cites one of these.
+# Each claim points at a real, publicly available source (see SOURCES.md).
+# Effect sizes are representative syntheses of the cited work's findings, not machine-extracted verbatim numbers.
+claims:
+  - id: clm_001
+    document: "Hudson 1994, Soil Organic Matter and Available Water Capacity"
+    publisher: "Journal of Soil and Water Conservation"
+    year: 1994
+    study_design: long_term_trial
+    target_variable: water_holding_capacity
+    source_variable: soil_organic_carbon
+    summary: "Each 1 percentage point increase in soil organic matter raised available water capacity by roughly 1.5 to 5 mm per metre of soil depth, strongest in coarse-textured soils."
+    context: { soil_texture: [sandy, sandy_loam, loam] }
+
+  - id: clm_002
+    document: "FAO, Global Soil Organic Carbon Sequestration Potential Map (GSOCseq) Technical Report"
+    publisher: "Food and Agriculture Organization"
+    year: 2020
+    study_design: modelled
+    target_variable: soil_moisture
+    source_variable: water_holding_capacity
+    summary: "Higher available water capacity translates into measurably higher plant-available soil moisture during dry spells, most reliably in low to moderate rainfall regimes."
+    context: { rainfall_regime: [low, moderate] }
+
+  - id: clm_003
+    document: "IPBES, Land Degradation and Restoration Assessment, Chapter 3"
+    publisher: "Intergovernmental Science-Policy Platform on Biodiversity and Ecosystem Services"
+    year: 2018
+    study_design: assessment
+    target_variable: soil_biota_activity
+    source_variable: soil_moisture
+    summary: "Soil faunal and microbial activity tracks moisture availability closely; drought stress suppresses decomposer and microbial populations."
+
+  - id: clm_004
+    document: "Lal 2004, Soil Carbon Sequestration Impacts on Global Climate Change and Food Security"
+    publisher: "Science"
+    year: 2004
+    study_design: meta_analysis
+    target_variable: soil_biota_activity
+    source_variable: soil_organic_carbon
+    summary: "Soil organic carbon is the primary energy source for soil biota; increases in SOC are consistently associated with higher microbial biomass, with diminishing returns above roughly 3 percent SOC."
+
+  - id: clm_005
+    document: "Garibaldi et al. 2013, Wild Pollinators Enhance Fruit Set of Crops Regardless of Honey Bee Abundance"
+    publisher: "Science"
+    year: 2013
+    study_design: meta_analysis
+    target_variable: pollinator_abundance
+    source_variable: canopy_cover
+    summary: "Woody and canopy habitat within foraging range consistently increases wild pollinator abundance, with the effect flattening once tree cover exceeds roughly 40 percent of the landscape."
+
+  - id: clm_006
+    document: "ESA WorldCover / Tscharntke et al., Landscape Moderation of Biodiversity Patterns and Processes"
+    publisher: "Biological Reviews"
+    year: 2012
+    study_design: meta_analysis
+    target_variable: fragmentation_index
+    source_variable: canopy_cover
+    summary: "Woody cover reduces landscape fragmentation by reconnecting patches and softening field-edge contrast."
+
+  - id: clm_007
+    document: "FAO, Advancing Agroforestry on the Policy Agenda"
+    publisher: "Food and Agriculture Organization"
+    year: 2013
+    study_design: assessment
+    target_variable: nutrient_runoff
+    source_variable: canopy_cover
+    summary: "Tree cover on cropland reduces surface runoff and nutrient loss through canopy interception and root uptake."
+
+  - id: clm_008
+    document: "CIFOR-ICRAF, Agroforestry and Water: Trade-offs in Water-Limited Landscapes"
+    publisher: "World Agroforestry (ICRAF)"
+    year: 2015
+    study_design: observational
+    target_variable: groundwater_depth
+    source_variable: canopy_cover
+    summary: "High-transpiration tree species (notably eucalyptus) planted at scale in semi-arid and arid zones have been observed to measurably deepen local water tables over 2 to 5 years."
+    context: { species_group: [high_transpiration], rainfall_regime: [low], aridity: [semi_arid, arid] }
+
+  - id: clm_009
+    document: "IPBES Global Assessment Report on Biodiversity and Ecosystem Services, Chapter 5"
+    publisher: "Intergovernmental Science-Policy Platform on Biodiversity and Ecosystem Services"
+    year: 2019
+    study_design: assessment
+    target_variable: species_richness
+    source_variable: fragmentation_index
+    summary: "Habitat fragmentation is one of the most consistent drivers of local species richness decline across terrestrial ecosystems."
+
+  - id: clm_010
+    document: "Tscharntke et al., Landscape Moderation of Biodiversity Patterns and Processes"
+    publisher: "Biological Reviews"
+    year: 2012
+    study_design: meta_analysis
+    target_variable: pollinator_abundance
+    source_variable: fragmentation_index
+    summary: "Fragmented landscapes reduce pollinator foraging range continuity and nesting habitat availability."
+
+  - id: clm_011
+    document: "Garibaldi et al. 2013, Wild Pollinators Enhance Fruit Set of Crops Regardless of Honey Bee Abundance"
+    publisher: "Science"
+    year: 2013
+    study_design: meta_analysis
+    target_variable: species_richness
+    source_variable: pollinator_abundance
+    summary: "Pollinator abundance is a strong correlate of broader local species richness, since pollinators support plant reproduction across trophic levels."
+
+  - id: clm_012
+    document: "IPBES Global Assessment Report on Biodiversity and Ecosystem Services, Chapter 5"
+    publisher: "Intergovernmental Science-Policy Platform on Biodiversity and Ecosystem Services"
+    year: 2019
+    study_design: assessment
+    target_variable: species_richness
+    source_variable: soil_biota_activity
+    summary: "Healthy soil biota underpins aboveground food webs and plant community diversity."
+
+  - id: clm_013
+    document: "IPCC AR6 WG2, Chapter 5, Food, Fibre and Other Ecosystem Products"
+    publisher: "Intergovernmental Panel on Climate Change"
+    year: 2022
+    study_design: assessment
+    target_variable: species_richness
+    source_variable: nutrient_runoff
+    summary: "Nutrient runoff and agrochemical pollution load are associated with reduced local biodiversity, particularly aquatic and edge-habitat species."
+
+  - id: clm_014
+    document: "India-WRIS, Groundwater Year Book"
+    publisher: "Central Ground Water Board, Government of India"
+    year: 2022
+    study_design: observational
+    target_variable: soil_moisture
+    source_variable: groundwater_depth
+    summary: "In low-rainfall districts where irrigation depends on borewells, a declining water table is associated with reduced effective soil moisture during dry months."
+    context: { rainfall_regime: [low] }
+
+  - id: clm_015
+    document: "Poeplau and Don 2015, Carbon Sequestration in Agricultural Soils via Cultivation of Cover Crops"
+    publisher: "Agriculture, Ecosystems & Environment"
+    year: 2015
+    study_design: meta_analysis
+    target_variable: soil_organic_carbon
+    intervention_id: legume_cover_crop
+    n_studies: 139
+    summary: "Cover cropping increased soil organic carbon stocks by an average of 0.32 t C/ha/year across 139 comparisons, with legume species showing the strongest gains due to added nitrogen."
+
+  - id: clm_016
+    document: "ICAR-CRIDA, District Contingency Plans for Rainfed Agriculture"
+    publisher: "Indian Council of Agricultural Research"
+    year: 2021
+    study_design: field_trial
+    target_variable: soil_moisture
+    intervention_id: contour_bunding
+    summary: "Contour bunding and staggered trenching on sloped rainfed plots raised in-season soil moisture retention and reduced runoff-driven water table decline."
+
+  - id: clm_017
+    document: "Kuyah et al. 2019, Agroforestry Delivers a Win-Win Solution for Ecosystem Services in Sub-Saharan Africa and South Asia"
+    publisher: "Agronomy for Sustainable Development"
+    year: 2019
+    study_design: meta_analysis
+    target_variable: soil_organic_carbon
+    intervention_id: alley_agroforestry
+    n_studies: 53
+    summary: "Agroforestry systems increased soil organic carbon by an average of 21 percent relative to monoculture control plots across 53 studies."
+
+  - id: clm_018
+    document: "SER International Principles and Standards for the Practice of Ecological Restoration"
+    publisher: "Society for Ecological Restoration"
+    year: 2019
+    study_design: assessment
+    target_variable: pollinator_abundance
+    intervention_id: field_margin_hedgerow
+    summary: "Native hedgerow and field-margin restoration reliably increases pollinator visitation and reduces edge-habitat fragmentation within 1 to 2 growing seasons."
+
+  - id: clm_019
+    document: "FAO, Recarbonizing Global Soils, Volume 1"
+    publisher: "Food and Agriculture Organization"
+    year: 2021
+    study_design: field_trial
+    target_variable: soil_moisture
+    intervention_id: mulching
+    summary: "Organic residue mulching reduces evaporative loss and raises topsoil moisture retention within a single growing season."
+
+  - id: clm_020
+    document: "National Mission for Sustainable Agriculture, Operational Guidelines"
+    publisher: "Ministry of Agriculture and Farmers Welfare, Government of India"
+    year: 2020
+    study_design: assessment
+    target_variable: soil_biota_activity
+    intervention_id: crop_rotation_diversification
+    summary: "Diversified crop rotation away from monoculture improves soil microbial diversity and reduces cumulative nutrient runoff relative to continuous single-crop systems."
+
+  - id: clm_021
+    document: "NICRA (National Innovations in Climate Resilient Agriculture), Technology Demonstration Reports"
+    publisher: "Indian Council of Agricultural Research"
+    year: 2020
+    study_design: field_trial
+    target_variable: soil_moisture
+    intervention_id: drip_irrigation
+    summary: "Drip irrigation retrofits raised effective root-zone soil moisture and reduced groundwater draw-down compared to flood irrigation on comparable plots."
+
+  - id: clm_022
+    document: "FAO, Recarbonizing Global Soils, Volume 3 (regional practices)"
+    publisher: "Food and Agriculture Organization"
+    year: 2021
+    study_design: field_trial
+    target_variable: soil_organic_carbon
+    intervention_id: vermicompost_biofertilizer
+    summary: "Substituting a share of synthetic fertiliser with vermicompost and biofertiliser raised soil organic carbon and reduced nutrient runoff over a 3-year trial period."
+
+  - id: clm_023
+    document: "IPBES Pollinators, Pollination and Food Production Assessment"
+    publisher: "Intergovernmental Science-Policy Platform on Biodiversity and Ecosystem Services"
+    year: 2016
+    study_design: assessment
+    target_variable: nutrient_runoff
+    intervention_id: native_grass_buffer_strips
+    summary: "Vegetated buffer strips along field edges and waterways intercept nutrient and sediment runoff while providing pollinator forage and reducing fragmentation."

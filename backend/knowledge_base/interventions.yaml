@@ -1,0 +1,113 @@
+# The intervention catalogue. Each one seeds the causal graph with direct effects,
+# and the graph engine propagates the rest.
+interventions:
+  - id: legume_cover_crop
+    label: "Legume-based cover cropping"
+    category: soil_management
+    direct_effects:
+      - { variable: soil_organic_carbon, delta_low: 0.10, delta_mid: 0.22, delta_high: 0.40, unit: "pp over 3 years", evidence_claim_ids: [clm_015] }
+      - { variable: soil_biota_activity, delta_low: 0.08, delta_mid: 0.18, delta_high: 0.30, unit: "index over 2 years", evidence_claim_ids: [clm_015] }
+    applicable_when: { land_cover: [cropland], rainfall_mm_min: 350 }
+    cost: { capex_inr_per_ha: [2000, 6000], opex_inr_per_ha_yr: [1500, 4000] }
+    labour_days_per_ha: [4, 9]
+    time_to_first_effect_months: 12
+    reversibility: high
+
+  - id: contour_bunding
+    label: "Contour bunding and staggered trenches"
+    category: water_management
+    direct_effects:
+      - { variable: soil_moisture, delta_low: 0.06, delta_mid: 0.14, delta_high: 0.24, unit: "index over 1 monsoon", evidence_claim_ids: [clm_016] }
+      - { variable: groundwater_depth, delta_low: -1.5, delta_mid: -0.6, delta_high: -0.1, unit: "metres over 3 years", evidence_claim_ids: [clm_016] }
+    applicable_when: { slope_percent_min: 2 }
+    cost: { capex_inr_per_ha: [8000, 25000] }
+    labour_days_per_ha: [10, 20]
+    time_to_first_effect_months: 6
+    reversibility: medium
+
+  - id: alley_agroforestry
+    label: "Alley cropping with nitrogen-fixing trees"
+    category: agroforestry
+    direct_effects:
+      - { variable: canopy_cover, delta_low: 8, delta_mid: 15, delta_high: 25, unit: "pp over 5 years", evidence_claim_ids: [clm_017] }
+      - { variable: soil_organic_carbon, delta_low: 0.15, delta_mid: 0.35, delta_high: 0.60, unit: "pp over 5 years", evidence_claim_ids: [clm_017] }
+    applicable_when: { land_cover: [cropland, grassland], rainfall_mm_min: 500 }
+    excluded_when: { groundwater_depth_m_min: 15 }
+    cost: { capex_inr_per_ha: [15000, 45000] }
+    labour_days_per_ha: [15, 30]
+    time_to_first_effect_months: 24
+    reversibility: low
+    trade_off_species_group: high_transpiration
+
+  - id: field_margin_hedgerow
+    label: "Native species field margins and hedgerows"
+    category: habitat
+    direct_effects:
+      - { variable: fragmentation_index, delta_low: -0.15, delta_mid: -0.08, delta_high: -0.03, unit: "index over 2 years", evidence_claim_ids: [clm_018] }
+      - { variable: pollinator_abundance, delta_low: 0.10, delta_mid: 0.20, delta_high: 0.35, unit: "index over 2 years", evidence_claim_ids: [clm_018] }
+    applicable_when: {}
+    cost: { capex_inr_per_ha: [4000, 12000] }
+    labour_days_per_ha: [5, 10]
+    time_to_first_effect_months: 12
+    reversibility: high
+
+  - id: mulching
+    label: "Organic residue mulching"
+    category: soil_management
+    direct_effects:
+      - { variable: soil_moisture, delta_low: 0.04, delta_mid: 0.08, delta_high: 0.14, unit: "index over 1 season", evidence_claim_ids: [clm_019] }
+      - { variable: soil_organic_carbon, delta_low: 0.02, delta_mid: 0.06, delta_high: 0.12, unit: "pp over 2 years", evidence_claim_ids: [clm_019] }
+    applicable_when: { rainfall_mm_min: 250 }
+    cost: { capex_inr_per_ha: [1000, 3000] }
+    labour_days_per_ha: [3, 6]
+    time_to_first_effect_months: 3
+    reversibility: high
+
+  - id: crop_rotation_diversification
+    label: "Diversified crop rotation, away from monoculture"
+    category: soil_management
+    direct_effects:
+      - { variable: soil_biota_activity, delta_low: 0.05, delta_mid: 0.12, delta_high: 0.20, unit: "index over 2 years", evidence_claim_ids: [clm_020] }
+      - { variable: nutrient_runoff, delta_low: -0.10, delta_mid: -0.06, delta_high: -0.02, unit: "index over 2 years", evidence_claim_ids: [clm_020] }
+    applicable_when: { land_cover: [cropland] }
+    cost: { capex_inr_per_ha: [1000, 4000] }
+    labour_days_per_ha: [2, 5]
+    time_to_first_effect_months: 12
+    reversibility: high
+
+  - id: drip_irrigation
+    label: "Drip irrigation retrofit"
+    category: water_management
+    direct_effects:
+      - { variable: soil_moisture, delta_low: 0.10, delta_mid: 0.18, delta_high: 0.28, unit: "index, immediate", evidence_claim_ids: [clm_021] }
+      - { variable: groundwater_depth, delta_low: -0.8, delta_mid: -0.3, delta_high: -0.05, unit: "metres over 3 years", evidence_claim_ids: [clm_021] }
+    applicable_when: { land_cover: [cropland] }
+    cost: { capex_inr_per_ha: [30000, 70000] }
+    labour_days_per_ha: [2, 4]
+    time_to_first_effect_months: 3
+    reversibility: medium
+
+  - id: vermicompost_biofertilizer
+    label: "Vermicompost and biofertilizer substitution"
+    category: input_reduction
+    direct_effects:
+      - { variable: soil_organic_carbon, delta_low: 0.05, delta_mid: 0.14, delta_high: 0.25, unit: "pp over 3 years", evidence_claim_ids: [clm_022] }
+      - { variable: nutrient_runoff, delta_low: -0.12, delta_mid: -0.07, delta_high: -0.02, unit: "index over 2 years", evidence_claim_ids: [clm_022] }
+    applicable_when: { land_cover: [cropland] }
+    cost: { capex_inr_per_ha: [3000, 9000] }
+    labour_days_per_ha: [4, 8]
+    time_to_first_effect_months: 6
+    reversibility: high
+
+  - id: native_grass_buffer_strips
+    label: "Native grass buffer strips along field edges and waterways"
+    category: habitat
+    direct_effects:
+      - { variable: nutrient_runoff, delta_low: -0.15, delta_mid: -0.09, delta_high: -0.04, unit: "index over 2 years", evidence_claim_ids: [clm_023] }
+      - { variable: fragmentation_index, delta_low: -0.10, delta_mid: -0.05, delta_high: -0.02, unit: "index over 2 years", evidence_claim_ids: [clm_023] }
+      - { variable: pollinator_abundance, delta_low: 0.05, delta_mid: 0.12, delta_high: 0.20, unit: "index over 2 years", evidence_claim_ids: [clm_023] }
+    applicable_when: {}
+    cost: { capex_inr_per_ha: [3000, 8000] }
+    labour_days_per_ha: [4, 8]
+    time_to_first_effect_months: 12
+    reversibility: high

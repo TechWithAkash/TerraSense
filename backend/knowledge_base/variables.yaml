@@ -1,0 +1,72 @@
+# The 11 metrics TerraSense tracks about a piece of land.
+# Every category the assignment asks for is represented: soil, land use, biodiversity, climate/water, human impact.
+variables:
+  - id: soil_organic_carbon
+    label: "Soil Organic Carbon"
+    unit: "percent"
+    category: soil
+    typical_range: [0.1, 5.0]
+
+  - id: soil_ph
+    label: "Soil pH"
+    unit: "pH"
+    category: soil
+    typical_range: [4.0, 9.0]
+
+  - id: water_holding_capacity
+    label: "Available Water Holding Capacity"
+    unit: "mm per m"
+    category: soil
+    typical_range: [40, 220]
+    derived: true
+
+  - id: soil_moisture
+    label: "Soil Moisture Availability"
+    unit: "index_0_1"
+    category: water
+    typical_range: [0.0, 1.0]
+
+  - id: groundwater_depth
+    label: "Groundwater Table Depth"
+    unit: "metres below surface"
+    category: water
+    typical_range: [2, 40]
+    higher_is_worse: true
+
+  - id: canopy_cover
+    label: "Tree and Canopy Cover"
+    unit: "percent"
+    category: land_use
+    typical_range: [0, 100]
+
+  - id: fragmentation_index
+    label: "Habitat Fragmentation"
+    unit: "index_0_1"
+    category: land_use
+    typical_range: [0.0, 1.0]
+    higher_is_worse: true
+
+  - id: species_richness
+    label: "Species Richness"
+    unit: "index_0_1"
+    category: biodiversity
+    typical_range: [0.0, 1.0]
+
+  - id: pollinator_abundance
+    label: "Pollinator Abundance"
+    unit: "index_0_1"
+    category: biodiversity
+    typical_range: [0.0, 1.0]
+
+  - id: soil_biota_activity
+    label: "Soil Microbial and Faunal Activity"
+    unit: "index_0_1"
+    category: biodiversity
+    typical_range: [0.0, 1.0]
+
+  - id: nutrient_runoff
+    label: "Nutrient Runoff and Pollution Load"
+    unit: "index_0_1"
+    category: human_impact
+    typical_range: [0.0, 1.0]
+    higher_is_worse: true

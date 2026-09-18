@@ -1,0 +1,140 @@
+# Hand-curated causal edges. This is the core artifact of the whole project.
+# Each edge is variable -> variable, with a real effect range and a citation into claims.yaml.
+# sign: positive means "source up -> target up". negative means "source up -> target down".
+edges:
+  - id: soc_to_awc
+    source: soil_organic_carbon
+    target: water_holding_capacity
+    sign: positive
+    effect: { per_unit_source: 1.0, delta_low: 1.5, delta_mid: 3.0, delta_high: 5.0, unit: "mm per m per 1pp SOC" }
+    transform: saturating
+    saturation_point: 4.0
+    context: { soil_texture: [sandy, sandy_loam, loam] }
+    confidence_tier: high
+    evidence_claim_ids: [clm_001]
+    notes: "Effect is strongest in coarse textured soils, weakest in clays."
+
+  - id: awc_to_soil_moisture
+    source: water_holding_capacity
+    target: soil_moisture
+    sign: positive
+    effect: { per_unit_source: 10.0, delta_low: 0.02, delta_mid: 0.05, delta_high: 0.09, unit: "index per 10mm/m" }
+    transform: linear
+    context: { rainfall_regime: [low, moderate] }
+    confidence_tier: medium
+    evidence_claim_ids: [clm_002]
+
+  - id: soil_moisture_to_soil_biota
+    source: soil_moisture
+    target: soil_biota_activity
+    sign: positive
+    effect: { per_unit_source: 0.1, delta_low: 0.03, delta_mid: 0.06, delta_high: 0.10, unit: "index per 0.1 moisture" }
+    transform: linear
+    confidence_tier: medium
+    evidence_claim_ids: [clm_003]
+
+  - id: soc_to_soil_biota
+    source: soil_organic_carbon
+    target: soil_biota_activity
+    sign: positive
+    effect: { per_unit_source: 1.0, delta_low: 0.05, delta_mid: 0.12, delta_high: 0.20, unit: "index per 1pp SOC" }
+    transform: saturating
+    saturation_point: 3.0
+    confidence_tier: high
+    evidence_claim_ids: [clm_004]
+
+  - id: canopy_to_pollinators
+    source: canopy_cover
+    target: pollinator_abundance
+    sign: positive
+    effect: { per_unit_source: 10.0, delta_low: 0.04, delta_mid: 0.09, delta_high: 0.16, unit: "index per 10pp canopy" }
+    transform: saturating
+    saturation_point: 40.0
+    confidence_tier: high
+    evidence_claim_ids: [clm_005]
+
+  - id: canopy_to_fragmentation
+    source: canopy_cover
+    target: fragmentation_index
+    sign: negative
+    effect: { per_unit_source: 10.0, delta_low: 0.02, delta_mid: 0.05, delta_high: 0.09, unit: "index per 10pp canopy" }
+    transform: linear
+    confidence_tier: medium
+    evidence_claim_ids: [clm_006]
+
+  - id: canopy_to_nutrient_runoff
+    source: canopy_cover
+    target: nutrient_runoff
+    sign: negative
+    effect: { per_unit_source: 10.0, delta_low: 0.02, delta_mid: 0.04, delta_high: 0.07, unit: "index per 10pp canopy" }
+    transform: linear
+    confidence_tier: medium
+    evidence_claim_ids: [clm_007]
+
+  # The non-obvious trade-off edge. Only fires for high-transpiration species in water-limited zones.
+  - id: canopy_to_groundwater_depth
+    source: canopy_cover
+    target: groundwater_depth
+    sign: positive
+    effect: { per_unit_source: 10.0, delta_low: 0.1, delta_mid: 0.4, delta_high: 1.2, unit: "metres per 10pp canopy" }
+    transform: linear
+    context: { species_group: [high_transpiration], rainfall_regime: [low], aridity: [semi_arid, arid] }
+    confidence_tier: medium
+    evidence_claim_ids: [clm_008]
+    notes: "Only applies to high water-demand species (e.g. eucalyptus) in water-limited zones. This is what produces the water-table trade-off warning."
+
+  - id: fragmentation_to_species_richness
+    source: fragmentation_index
+    target: species_richness
+    sign: negative
+    effect: { per_unit_source: 0.1, delta_low: 0.02, delta_mid: 0.04, delta_high: 0.07, unit: "index per 0.1 fragmentation" }
+    transform: linear
+    confidence_tier: high
+    evidence_claim_ids: [clm_009]
+
+  - id: fragmentation_to_pollinators
+    source: fragmentation_index
+    target: pollinator_abundance
+    sign: negative
+    effect: { per_unit_source: 0.1, delta_low: 0.02, delta_mid: 0.04, delta_high: 0.08, unit: "index per 0.1 fragmentation" }
+    transform: linear
+    confidence_tier: medium
+    evidence_claim_ids: [clm_010]
+
+  - id: pollinators_to_species_richness
+    source: pollinator_abundance
+    target: species_richness
+    sign: positive
+    effect: { per_unit_source: 0.1, delta_low: 0.02, delta_mid: 0.04, delta_high: 0.07, unit: "index per 0.1 pollinator" }
+    transform: linear
+    confidence_tier: medium
+    evidence_claim_ids: [clm_011]
+
+  - id: soil_biota_to_species_richness
+    source: soil_biota_activity
+    target: species_richness
+    sign: positive
+    effect: { per_unit_source: 0.1, delta_low: 0.01, delta_mid: 0.03, delta_high: 0.05, unit: "index per 0.1 biota" }
+    transform: linear
+    confidence_tier: medium
+    evidence_claim_ids: [clm_012]
+
+  - id: nutrient_runoff_to_species_richness
+    source: nutrient_runoff
+    target: species_richness
+    sign: negative
+    effect: { per_unit_source: 0.1, delta_low: 0.02, delta_mid: 0.04, delta_high: 0.06, unit: "index per 0.1 runoff" }
+    transform: linear
+    confidence_tier: medium
+    evidence_claim_ids: [clm_013]
+
+  - id: groundwater_depth_to_soil_moisture
+    source: groundwater_depth
+    target: soil_moisture
+    sign: negative
+    effect: { per_unit_source: 1.0, delta_low: 0.002, delta_mid: 0.006, delta_high: 0.012, unit: "index per metre depth" }
+    transform: linear
+    context: { rainfall_regime: [low] }
+    confidence_tier: low
+    evidence_claim_ids: [clm_014]
+    notes: "Weak, indirect. Only material in low-rainfall zones where irrigation depends on the water table."
