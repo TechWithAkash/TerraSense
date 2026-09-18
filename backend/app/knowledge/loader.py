@@ -21,6 +21,10 @@ def _split_into_chunks(text: str) -> list[str]:
         section = section.strip()
         if not section:
             continue
+        if section.lower().startswith("source excerpts:"):
+            # citation-list preamble, not narrative content - skip it so it can't outrank a
+            # substantive chunk just because its few terms are densely packed into a short block
+            continue
         if len(section) <= MAX_CHUNK_CHARS:
             chunks.append(section)
             continue

@@ -25,3 +25,12 @@ def test_structured_input_only_keeps_known_fields():
     result = extract_from_structured({"soil_organic_carbon": 0.4, "not_a_real_field": "ignored"})
     assert result.soil_organic_carbon == 0.4
     assert not hasattr(result, "not_a_real_field")
+
+
+def test_value_before_keyword_phrasing_is_also_extracted():
+    result = extract_from_text(
+        "What should I do for my cropland with low rainfall and 0.3% soil organic carbon?"
+    )
+    assert result.land_cover == "cropland"
+    assert result.rainfall_regime == "low"
+    assert result.soil_organic_carbon == 0.3

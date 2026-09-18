@@ -27,27 +27,35 @@ def _rule_based_extract(text: str) -> dict:
     lowered = text.lower()
     found: dict = {}
 
+    # keyword-then-value ("soil organic carbon: 0.3%") and value-then-keyword ("0.3% soil organic
+    # carbon") are both natural phrasings, so every numeric field below matches either order.
     soc_match = re.search(
-        r"(?:soil organic carbon|organic carbon|soc)\D{0,10}(\d+\.?\d*)\s*%", lowered
+        r"(?:soil organic carbon|organic carbon|soc)\D{0,10}(\d+\.?\d*)\s*%"
+        r"|(\d+\.?\d*)\s*%\s*(?:soil organic carbon|organic carbon|soc)",
+        lowered,
     )
     if soc_match:
-        found["soil_organic_carbon"] = float(soc_match.group(1))
+        found["soil_organic_carbon"] = float(soc_match.group(1) or soc_match.group(2))
 
     ph_match = re.search(r"(?:soil )?ph\D{0,5}(\d+\.?\d*)", lowered)
     if ph_match:
         found["soil_ph"] = float(ph_match.group(1))
 
-    canopy_match = re.search(r"canopy\D{0,10}(\d+\.?\d*)\s*%", lowered)
+    canopy_match = re.search(r"canopy\D{0,10}(\d+\.?\d*)\s*%|(\d+\.?\d*)\s*%\s*canopy", lowered)
     if canopy_match:
-        found["canopy_cover"] = float(canopy_match.group(1))
+        found["canopy_cover"] = float(canopy_match.group(1) or canopy_match.group(2))
 
     rainfall_mm_match = re.search(r"(\d+\.?\d*)\s*mm\b", lowered)
     if rainfall_mm_match:
         found["annual_rainfall_mm"] = float(rainfall_mm_match.group(1))
 
-    rainfall_word_match = re.search(r"rainfall\D{0,10}(low|moderate|medium|high)", lowered)
+    rainfall_word_match = re.search(
+        r"rainfall\D{0,10}(low|moderate|medium|high)|(low|moderate|medium|high)\s+rainfall",
+        lowered,
+    )
     if rainfall_word_match:
-        found["rainfall_regime"] = _RAINFALL_KEYWORDS[rainfall_word_match.group(1)]
+        word = rainfall_word_match.group(1) or rainfall_word_match.group(2)
+        found["rainfall_regime"] = _RAINFALL_KEYWORDS[word]
 
     for keyword in _ARIDITY_KEYWORDS:
         if keyword in lowered:

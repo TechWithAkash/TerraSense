@@ -24,7 +24,9 @@ def get_client() -> OpenAI:
     return _client
 
 
-def complete(system_prompt: str, user_prompt: str, temperature: float = 0.3, json_mode: bool = False) -> str | None:
+def complete(
+    system_prompt: str, user_prompt: str, temperature: float = 0.3, json_mode: bool = False
+) -> str | None:
     if not is_available():
         return None
     try:
