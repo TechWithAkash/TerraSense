@@ -28,6 +28,15 @@ def test_direct_effect_seeds_delta_with_no_edges():
     assert result.paths[0].from_variable == "intervention"
 
 
+def test_saturating_direct_effect_shrinks_on_an_already_healthy_site():
+    effect = DirectEffect(
+        "soil_organic_carbon", 0.10, 0.22, 0.40, [], transform="saturating", saturation_point=4.0
+    )
+    degraded = propagate([effect], [], {}, {"soil_organic_carbon": 0.3})
+    healthy = propagate([effect], [], {}, {"soil_organic_carbon": 2.9})
+    assert healthy.deltas["soil_organic_carbon"].mid < degraded.deltas["soil_organic_carbon"].mid
+
+
 def test_propagation_reaches_second_hop_variable():
     effect = DirectEffect("soil_organic_carbon", 0.1, 0.2, 0.4, [])
     edge = make_edge()

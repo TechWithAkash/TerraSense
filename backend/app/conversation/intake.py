@@ -12,7 +12,7 @@ _SYSTEM_PROMPT = """You extract structured land and site data from a farmer or l
 Return ONLY a JSON object with any of these keys you can confidently fill in, omit anything unclear:
 soil_organic_carbon (percent, e.g. 0.3), soil_ph, canopy_cover (percent), fragmentation_index (0-1),
 species_richness (0-1), pollinator_abundance (0-1), soil_biota_activity (0-1), soil_moisture (0-1),
-nutrient_runoff (0-1), groundwater_depth (0-1),
+nutrient_runoff (0-1),
 land_cover (cropland|grassland|forest), crop (free text), rainfall_regime (low|moderate|high),
 annual_rainfall_mm, aridity (arid|semi_arid|sub_humid|humid), soil_texture (sandy|sandy_loam|loam|clay),
 slope_percent, groundwater_depth_m, budget_inr_per_ha, area_hectares.

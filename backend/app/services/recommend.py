@@ -102,6 +102,8 @@ def generate_recommendations(
                 delta_mid=effect["delta_mid"],
                 delta_high=effect["delta_high"],
                 evidence_claim_ids=effect.get("evidence_claim_ids", []),
+                transform=effect.get("transform", "linear"),
+                saturation_point=effect.get("saturation_point"),
             )
             for effect in intervention.direct_effects
         ]

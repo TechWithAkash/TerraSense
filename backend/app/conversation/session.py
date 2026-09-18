@@ -16,7 +16,6 @@ NUMERIC_VARIABLE_FIELDS = {
     "soil_biota_activity",
     "soil_moisture",
     "nutrient_runoff",
-    "groundwater_depth",
 }
 
 CONTEXT_FIELDS = {
@@ -31,6 +30,12 @@ CONTEXT_FIELDS = {
     "budget_inr_per_ha",
     "area_hectares",
 }
+
+# groundwater_depth_m is the one user-facing field for "how deep is the water table", but it
+# feeds two separate subsystems: the feasibility filter (via CONTEXT_FIELDS above) and the causal
+# graph's own groundwater_depth baseline. Without this alias, the graph would silently keep using
+# the generic default even after the user told us their actual number.
+CONTEXT_TO_GRAPH_VARIABLE_ALIAS = {"groundwater_depth_m": "groundwater_depth"}
 
 
 def get_or_create_session(db: DbSession, session_id: str | None) -> ConversationSession:
@@ -56,6 +61,28 @@ def record_message(db: DbSession, session: ConversationSession, role: str, conte
     db.commit()
 
 
+def _upsert_site_state(db: DbSession, site_id: str, variable_id: str, value: float) -> None:
+    existing = (
+        db.query(SiteState)
+        .filter(SiteState.site_id == site_id, SiteState.variable_id == variable_id)
+        .first()
+    )
+    if existing:
+        existing.value = value
+        existing.provenance = "user"
+        existing.source_name = "user provided"
+    else:
+        db.add(
+            SiteState(
+                site_id=site_id,
+                variable_id=variable_id,
+                value=value,
+                provenance="user",
+                source_name="user provided",
+            )
+        )
+
+
 def apply_extracted_input(
     db: DbSession, session: ConversationSession, extracted: ExtractedSiteInput
 ) -> None:
@@ -66,27 +93,12 @@ def apply_extracted_input(
         session.context = {**session.context, **context_updates}
         db.add(session)
 
-    for variable_id, value in data.items():
-        if variable_id not in NUMERIC_VARIABLE_FIELDS:
-            continue
-        existing = (
-            db.query(SiteState)
-            .filter(SiteState.site_id == session.site_id, SiteState.variable_id == variable_id)
-            .first()
-        )
-        if existing:
-            existing.value = value
-            existing.provenance = "user"
-            existing.source_name = "user provided"
-        else:
-            db.add(
-                SiteState(
-                    site_id=session.site_id,
-                    variable_id=variable_id,
-                    value=value,
-                    provenance="user",
-                    source_name="user provided",
-                )
+    for field_name, value in data.items():
+        if field_name in NUMERIC_VARIABLE_FIELDS:
+            _upsert_site_state(db, session.site_id, field_name, value)
+        if field_name in CONTEXT_TO_GRAPH_VARIABLE_ALIAS:
+            _upsert_site_state(
+                db, session.site_id, CONTEXT_TO_GRAPH_VARIABLE_ALIAS[field_name], value
             )
 
     db.commit()

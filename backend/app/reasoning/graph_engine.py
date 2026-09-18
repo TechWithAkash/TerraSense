@@ -32,6 +32,8 @@ class DirectEffect:
     delta_mid: float
     delta_high: float
     evidence_claim_ids: list[str] = field(default_factory=list)
+    transform: str = "linear"
+    saturation_point: float | None = None
 
 
 @dataclass
@@ -96,15 +98,22 @@ def propagate(
     frontier: list[tuple[str, float, float, float, int]] = []
 
     for effect in direct_effects:
-        deltas[effect.variable] = VariableDelta(
-            effect.delta_low, effect.delta_mid, effect.delta_high
-        )
+        # a saturating direct effect scales down by how much headroom the site's own current
+        # value has left - this is what stops an already carbon-rich site from getting credited
+        # the same absolute gain as a degraded one for the identical intervention.
+        scale = 1.0
+        if effect.transform == "saturating":
+            scale = _saturation_scale(baseline_values.get(effect.variable), effect.saturation_point)
+
+        delta_low = effect.delta_low * scale
+        delta_mid = effect.delta_mid * scale
+        delta_high = effect.delta_high * scale
+
+        deltas[effect.variable] = VariableDelta(delta_low, delta_mid, delta_high)
         paths.append(
-            PathStep(
-                "intervention", effect.variable, None, effect.delta_mid, effect.evidence_claim_ids
-            )
+            PathStep("intervention", effect.variable, None, delta_mid, effect.evidence_claim_ids)
         )
-        frontier.append((effect.variable, effect.delta_low, effect.delta_mid, effect.delta_high, 0))
+        frontier.append((effect.variable, delta_low, delta_mid, delta_high, 0))
 
     outgoing_by_source: dict[str, list[EdgeDTO]] = {}
     for edge in edges:

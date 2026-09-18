@@ -22,7 +22,6 @@ class ExtractedSiteInput(BaseModel):
     soil_biota_activity: float | None = None
     soil_moisture: float | None = None
     nutrient_runoff: float | None = None
-    groundwater_depth: float | None = None
 
     land_cover: str | None = None  # cropland | grassland | forest
     crop: str | None = None

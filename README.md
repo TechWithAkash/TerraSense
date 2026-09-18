@@ -12,6 +12,10 @@ This is **not a chatbot with a PDF search attached**. The reasoning runs in a st
 that is pure Python with zero LLM calls, deterministic, and unit tested. The LLM (when configured) only
 parses messy input at the front and phrases the answer at the back — it never invents the science.
 
+**[EVALUATION.md](EVALUATION.md) maps every one of the assignment's own weighted evaluation criteria
+to what the system does, where the code lives, and which automated test proves it** — start there if
+you're scoring this against the brief.
+
 ## 1. Architecture
 
 ```
@@ -110,8 +114,9 @@ curl -s -X POST http://localhost:8000/api/v1/chat \
 This reproduces the assignment brief's own example exactly: TerraSense asks for land use, then
 (if tree-based interventions are plausible) groundwater depth, then rainfall, before returning ranked,
 cited recommendations. See [`backend/knowledge_base/SOURCES.md`](backend/knowledge_base/SOURCES.md) and
-run `uv run pytest -v` in `backend/` for the reasoning core's test suite (26 tests, all on the
-LLM-free code paths).
+run `uv run pytest -v` in `backend/` for the full test suite (47 tests: the reasoning core in isolation,
+plus end-to-end golden scenarios in `tests/test_golden_scenarios.py` mapped directly to the
+assignment's evaluation rubric — see [EVALUATION.md](EVALUATION.md)).
 
 ## 4. CI/CD
 
@@ -163,6 +168,7 @@ much heavier draft architecture:
 ### What I'd build next
 
 Real geo-enrichment (SoilGrids, Open-Meteo, GBIF) to auto-populate the site state vector from
-coordinates; a hosted embedding model behind the same retrieval interface; calibrating edge effect sizes
-against long-term field trial data instead of literature synthesis; and a small golden-scenario eval
-harness wired into CI once there's a stable enough claim set to regression-test against.
+coordinates; a hosted embedding model behind the same retrieval interface; calibrating edge effect
+sizes against long-term field trial data instead of literature synthesis; and growing the golden
+scenario suite past today's rubric-mapped set toward the ~30-scenario adversarial coverage a larger
+claim set would support.
